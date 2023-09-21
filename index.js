@@ -1,12 +1,17 @@
-let container = document.getElementById('puzzleContainer');
-let puzzleSizeInput = document.getElementById('puzzleSize');
-let imageInput = document.getElementById('imageInput');
-let puzzleArea = document.getElementById('puzzleArea');
-let referenceImageArea = document.getElementById('ReferenceImageArea');
-let message = document.getElementById('message');
-let completedMessage = document.getElementById('completedMessage')
-let correctMoves = document.getElementById('correctMoves');
-let incorrectMoves = document.getElementById('incorrectMoves');
+const container = document.getElementById('puzzleContainer');
+const puzzleSizeInput = document.getElementById('puzzleSize');
+const imageInput = document.getElementById('imageInput');
+const puzzleArea = document.getElementById('puzzleArea');
+const referenceImageArea = document.getElementById('ReferenceImageArea');
+const message = document.getElementById('message');
+const completedMessage = document.getElementById('completedMessage')
+const correctMoves = document.getElementById('correctMoves');
+const incorrectMoves = document.getElementById('incorrectMoves');
+
+const dataFormat = 'text/plain';
+const puzzlePieceElement = 'puzzlePiece';
+const puzzlePieceSelector = `.${puzzlePieceElement}`;
+
 let puzzleSize = 3; // Default puzzle size
 let correctMovesCount;
 let incorrectMovesCount;
@@ -49,11 +54,13 @@ function shuffleArray(array) {
 
 function createPuzzlePieces(size, imageURL) {
     const pieces = [];
-
+    const MaxPercentage = '100%';
+    const sizeUnit = 'px';
+    
     const image = new Image();
     image.src = imageURL;
-    image.style.maxWidth = '100%';
-    image.style.maxHeight = '100%';
+    image.style.maxWidth = MaxPercentage;
+    image.style.maxHeight = MaxPercentage;
     image.onload = function () {
         if (image.width > 640) {
             const aspectRatio = image.height / image.width;
@@ -62,24 +69,24 @@ function createPuzzlePieces(size, imageURL) {
             image.width = newWidth;
             image.height = newHeight;
         }
-        let pieceWidth = image.width / size;
-        let pieceHeight = image.height / size;
+        const pieceWidth = image.width / size;
+        const pieceHeight = image.height / size;
         const puzzleAreaHeight = (pieceHeight * size) + size * 5
         const puzzleAreaWidth = (pieceWidth * size) + size * 5
-        puzzleArea.style.width = `${puzzleAreaWidth}px`;
-        puzzleArea.style.height = `${puzzleAreaHeight}px`
+        puzzleArea.style.width = `${puzzleAreaWidth}${sizeUnit}`;
+        puzzleArea.style.height = `${puzzleAreaHeight}${sizeUnit}`
         const orderValues = [...Array(size * size).keys()];
         shuffleArray(orderValues);
         for (let i = 0; i < size; i++) {
             for (let j = 0; j < size; j++) {
                 const piece = document.createElement('div');
-                piece.className = 'puzzlePiece';
+                piece.className = puzzlePieceElement;
                 piece.style.backgroundImage = `url(${imageURL})`;
-                piece.style.width = `${pieceWidth}px`;
-                piece.style.height = `${pieceHeight}px`;
-                piece.style.maxWidth = "100%"
-                piece.style.maxHeight = "100%"
-                piece.style.backgroundPosition = `-${j * pieceWidth}px -${i * pieceHeight}px`;
+                piece.style.width = `${pieceWidth}${sizeUnit}`;
+                piece.style.height = `${pieceHeight}${sizeUnit}`;
+                piece.style.maxWidth = MaxPercentage;
+                piece.style.maxHeight = MaxPercentage;
+                piece.style.backgroundPosition = `-${j * pieceWidth}${sizeUnit} -${i * pieceHeight}${sizeUnit}`;
                 piece.id = `piece_${i}_${j}`;
                 piece.style.order = orderValues[i * size + j];
                 piece.draggable = true;
@@ -119,7 +126,7 @@ function onTouchEnd(event) {
 }
 
 function onDragStart(event) {
-    event.dataTransfer.setData('text/plain', event.target.id);
+    event.dataTransfer.setData(dataFormat, event.target.id);
 }
 
 function onDragOver(event) {
@@ -128,7 +135,7 @@ function onDragOver(event) {
 
 function onDrop(event) {
     event.preventDefault();
-    const sourceId = event.dataTransfer.getData('text/plain');
+    const sourceId = event.dataTransfer.getData(dataFormat);
     const targetPiece = event.target;
     checkMove(sourceId, targetPiece)
 }
@@ -161,7 +168,7 @@ function getDroppedPiece(x, y) {
     const elementsUnderTouch = document.elementsFromPoint(x, y);
 
     for (const element of elementsUnderTouch) {
-        if (element.classList.contains('puzzlePiece')) {
+        if (element.classList.contains(puzzlePieceElement)) {
             return element;
         }
     }
@@ -169,7 +176,7 @@ function getDroppedPiece(x, y) {
     return null;
 }
 function checkPuzzleCompletion() {
-    const puzzlePieces = document.querySelectorAll('.puzzlePiece');
+    const puzzlePieces = document.querySelectorAll(puzzlePieceSelector);
     let isCompleted = true;
 
     puzzlePieces.forEach(piece => {
