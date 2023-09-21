@@ -5,6 +5,8 @@ let puzzleArea = document.getElementById('puzzleArea');
 let referenceImageArea = document.getElementById('ReferenceImageArea');
 let message = document.getElementById('message');
 let completedMessage = document.getElementById('completedMessage')
+let correctMoves = document.getElementById('correctMoves');
+let incorrectMoves = document.getElementById('incorrectMoves');
 let puzzleSize = 3; // Default puzzle size
 let correctMovesCount;
 let incorrectMovesCount;
@@ -14,6 +16,8 @@ function createPuzzle() {
     incorrectMovesCount = 0;
     puzzleArea.textContent = '';
     referenceImageArea.textContent = '';
+    correctMoves.textContent = '';
+    incorrectMoves.textContent = '';
 
     const inputImage = imageInput.files[0];
     if (!inputImage) {
@@ -51,7 +55,13 @@ function createPuzzlePieces(size, imageURL) {
     image.style.maxWidth = '100%';
     image.style.maxHeight = '100%';
     image.onload = function () {
-        
+        if (image.width > 640) {
+            const aspectRatio = image.height / image.width;
+            const newWidth = 640;
+            const newHeight = newWidth * aspectRatio;
+            image.width = newWidth;
+            image.height = newHeight;
+        }
         let pieceWidth = image.width / size;
         let pieceHeight = image.height / size;
         const puzzleAreaHeight = (pieceHeight * size) + size * 5
@@ -143,8 +153,8 @@ function checkMove(sourceId, targetPiece) {
 }
 
 function updateMoveCounts() {
-    document.getElementById('correctMoves').textContent = `Correct Moves: ${correctMovesCount}`;
-    document.getElementById('incorrectMoves').textContent = `Incorrect Moves: ${incorrectMovesCount}`;
+    correctMoves.textContent = `Correct Moves: ${correctMovesCount}`;
+    incorrectMoves.textContent = `Incorrect Moves: ${incorrectMovesCount}`;
 }
 
 function getDroppedPiece(x, y) {
